@@ -7,7 +7,19 @@
 	<key>category</key>
 	<string>自分</string>
 	<key>connections</key>
-	<dict/>
+	<dict>
+		<key>79E32ACB-4340-408C-B114-75ED13B07304</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A9FCFBDE-BCAD-4080-8EB9-ED107E9150A9</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+	</dict>
 	<key>createdby</key>
 	<string>Paul Traylor</string>
 	<key>description</key>
@@ -18,6 +30,23 @@
 	<string>Info Dashboard</string>
 	<key>objects</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>A9FCFBDE-BCAD-4080-8EB9-ED107E9150A9</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -57,6 +86,11 @@
 	<key>uidata</key>
 	<dict>
 		<key>79E32ACB-4340-408C-B114-75ED13B07304</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+		<key>A9FCFBDE-BCAD-4080-8EB9-ED107E9150A9</key>
 		<dict>
 			<key>ypos</key>
 			<real>10</real>
