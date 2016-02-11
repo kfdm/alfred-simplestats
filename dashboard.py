@@ -8,21 +8,16 @@ from workflow import web
 logger = logging.getLogger(__name__)
 today = datetime.datetime.today()
 
+class Workflow(workflow.Workflow):
+    def cached_link(self, key, url):
+        def fetch():
+            return web.get(url).json()
+        return self.cached_data(key, fetch)
 
 def main(wf):
-    # Switch this to query same stats backend
-    def wanikani():
-        return web.get('https://www.wanikani.com/api/user/{0}/study-queue'.format(
-            wf.settings['wanikani_api']
-        )).json()
-
-    def countdowns():
-        return web.get('https://tsundere.co/api/countdown.json').json()
-
-    def issues():
-        return web.get('https://api.github.com/repos/kfdm/alfred-info-dashboard/issues').json()
-
-    wk = wf.cached_data('wanikani', wanikani)
+    wk = wf.cached_link('wanikani', 'https://www.wanikani.com/api/user/{0}/study-queue'.format(
+        wf.settings['wanikani_api']
+    ))
     wf.add_item(
         'WaniKani',
         'Reviews: {reviews_available} Lessons: {lessons_available} '.format(**wk['requested_information']),
@@ -31,7 +26,7 @@ def main(wf):
         valid=True,
     )
 
-    for countdown in wf.cached_data('countdowns', countdowns).get('results', []):
+    for countdown in wf.cached_link('countdowns', 'https://tsundere.co/api/countdown.json').get('results', []):
         created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ")
         delta = created - today
         wf.add_item(
@@ -40,7 +35,7 @@ def main(wf):
             icon=workflow.ICON_CLOCK,
         )
 
-    issues = wf.cached_data('issues', issues)
+    issues = wf.cached_link('issues', 'https://api.github.com/repos/kfdm/alfred-info-dashboard/issues')
     wf.add_item(
         'Issues',
         '{} issues'.format(len(issues)),
@@ -52,4 +47,4 @@ def main(wf):
     wf.send_feedback()
 
 if __name__ == '__main__':
-    sys.exit(main(workflow.Workflow()))
+    sys.exit(main(Workflow()))
