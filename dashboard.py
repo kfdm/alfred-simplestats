@@ -8,11 +8,15 @@ from workflow import web
 logger = logging.getLogger(__name__)
 today = datetime.datetime.today()
 
+
 class Workflow(workflow.Workflow):
     def cached_link(self, key, url):
         def fetch():
-            return web.get(url).json()
+            return web.get(url, headers={
+                'user-agent': 'alfred-info-dashboard/{0} https://github.com/kfdm/alfred-info-dashboard'.format(self.version)
+            }).json()
         return self.cached_data(key, fetch)
+
 
 def main(wf):
     wk = wf.cached_link('wanikani', 'https://www.wanikani.com/api/user/{0}/study-queue'.format(
