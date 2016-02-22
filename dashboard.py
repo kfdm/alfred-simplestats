@@ -15,7 +15,8 @@ class Workflow(workflow.Workflow):
             return web.get(url, headers={
                 'user-agent': 'alfred-info-dashboard/{0} https://github.com/kfdm/alfred-info-dashboard'.format(self.version)
             }).json()
-        return self.cached_data(key, fetch)
+        # Cache data for 5 minutes
+        return self.cached_data(key, fetch, 300)
 
 
 def main(wf):
