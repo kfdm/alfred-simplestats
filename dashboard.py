@@ -40,14 +40,17 @@ def main(wf):
             icon=workflow.ICON_CLOCK,
         )
 
-    issues = wf.cached_link('issues', 'https://api.github.com/repos/kfdm/alfred-info-dashboard/issues')
-    wf.add_item(
+    try:
+        issues = wf.cached_link('issues', 'https://api.github.com/repos/kfdm/alfred-info-dashboard/issues')
+        wf.add_item(
         'Issues',
         '{} issues'.format(len(issues)),
         arg='https://github.com/kfdm/alfred-info-dashboard/issues',
         icon=workflow.ICON_WARNING,
         valid=True,
-    )
+        )
+    except:
+        pass
 
     wf.send_feedback()
 
