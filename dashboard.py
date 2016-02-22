@@ -2,11 +2,16 @@ import datetime
 import logging
 import sys
 
+import pytz
 import workflow
 from workflow import web
 
 logger = logging.getLogger(__name__)
-today = datetime.datetime.today()
+timezone = pytz.timezone('Asia/Tokyo')
+today = timezone.localize(datetime.datetime.today()).replace(microsecond=0)
+tomorrow = today.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
+now = datetime.datetime.now(timezone).replace(microsecond=0)
+
 
 
 class Workflow(workflow.Workflow):
@@ -23,6 +28,13 @@ def main(wf):
     wk = wf.cached_link('wanikani', 'https://www.wanikani.com/api/user/{0}/study-queue'.format(
         wf.settings['wanikani_api']
     ))
+
+    wf.add_item(
+        'Time Remaining',
+        '{} remaining today'.format(tomorrow - now),
+        icon=workflow.ICON_CLOCK,
+    )
+
     wf.add_item(
         'WaniKani',
         'Reviews: {reviews_available} Lessons: {lessons_available} '.format(**wk['requested_information']),
@@ -32,7 +44,7 @@ def main(wf):
     )
 
     for countdown in wf.cached_link('countdowns', 'https://tsundere.co/api/countdown.json').get('results', []):
-        created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ")
+        created = timezone.localize(datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ"))
         delta = created - today
         wf.add_item(
             countdown['label'],
@@ -43,14 +55,14 @@ def main(wf):
     try:
         issues = wf.cached_link('issues', 'https://api.github.com/repos/kfdm/alfred-info-dashboard/issues')
         wf.add_item(
-        'Issues',
-        '{} issues'.format(len(issues)),
-        arg='https://github.com/kfdm/alfred-info-dashboard/issues',
-        icon=workflow.ICON_WARNING,
-        valid=True,
+            'Issues',
+            '{} issues'.format(len(issues)),
+            arg='https://github.com/kfdm/alfred-info-dashboard/issues',
+            icon=workflow.ICON_WARNING,
+            valid=True,
         )
     except:
-        pass
+        logger.exception('Error fetching from GitHub')
 
     wf.send_feedback()
 
