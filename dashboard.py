@@ -44,7 +44,7 @@ def main(wf):
     )
 
     for countdown in wf.cached_link('countdowns', 'https://tsundere.co/api/countdown.json').get('results', []):
-        created = timezone.localize(datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ"))
+        created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
         delta = created - today
         wf.add_item(
             countdown['label'],
