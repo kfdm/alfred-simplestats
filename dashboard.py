@@ -15,14 +15,23 @@ now = datetime.datetime.now(timezone).replace(microsecond=0)
 
 
 class Workflow(workflow.Workflow):
-    def cached_link(self, key, url):
+    def cached_link(self, key, url, **kwargs):
         def fetch():
-            return web.get(url, headers={
-                'user-agent': 'alfred-info-dashboard/{0} https://github.com/kfdm/alfred-info-dashboard'.format(self.version)
-            }).json()
+            if 'headers' not in kwargs:
+                kwargs['headers'] = {}
+
+            kwargs['headers']['user-agent'] = 'alfred-info-dashboard/{0} https://github.com/kfdm/alfred-info-dashboard'.format(self.version)
+            return web.get(url, **kwargs).json()
         # Cache data for 5 minutes
         return self.cached_data(key, fetch, 300)
 
+    def countdowns(self):
+        return self.cached_link(
+            'countdowns',
+            'https://tsundere.co/api/countdown.json', headers={
+                'Authorization': 'Token ' + self.settings['coutdown_token']
+            }
+        ).get('results', [])
 
 def main(wf):
     wk = wf.cached_link('wanikani', 'https://www.wanikani.com/api/user/{0}/study-queue'.format(
@@ -43,7 +52,7 @@ def main(wf):
         valid=True,
     )
 
-    for countdown in wf.cached_link('countdowns', 'https://tsundere.co/api/countdown.json').get('results', []):
+    for countdown in wf.countdowns():
         created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
         delta = created - today
         wf.add_item(
