@@ -54,6 +54,9 @@ def main(wf):
 
     for countdown in wf.countdowns():
         created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
+        # Simple filter for expired countdowns for now
+        if created < today:
+            continue
         delta = created - today
         wf.add_item(
             countdown['label'],
