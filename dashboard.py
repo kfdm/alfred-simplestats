@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import sys
 
 import pytz
@@ -58,10 +59,12 @@ def main(wf):
         if created < today:
             continue
         delta = created - today
+        icon = wf.datafile(countdown['id'] + '.png')
+        icon = icon if os.path.exists(icon) else workflow.ICON_CLOCK
         wf.add_item(
             countdown['label'],
             str(delta),
-            icon=workflow.ICON_CLOCK,
+            icon=icon,
         )
 
     try:
