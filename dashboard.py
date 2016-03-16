@@ -60,7 +60,13 @@ def main(wf):
             continue
         delta = created - today
         icon = wf.datafile(countdown['id'] + '.png')
-        icon = icon if os.path.exists(icon) else workflow.ICON_CLOCK
+        if os.path.exists(icon) is False:
+            if countdown['icon']:
+                request = web.get(countdown['icon'])
+                request.save_to_path(icon)
+            else:
+                icon = workflow.ICON_CLOCK
+
         wf.add_item(
             countdown['label'],
             str(delta),
