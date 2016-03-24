@@ -29,7 +29,7 @@ class Workflow(workflow.Workflow):
     def countdowns(self):
         return self.cached_link(
             'countdowns',
-            'https://tsundere.co/api/countdown.json', headers={
+            'https://tsundere.co/api/countdown.json?ordering=created', headers={
                 'Authorization': 'Token ' + self.settings['coutdown_token']
             }
         ).get('results', [])
