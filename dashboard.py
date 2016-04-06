@@ -8,7 +8,14 @@ import workflow
 from workflow import web
 
 logger = logging.getLogger(__name__)
-timezone = pytz.timezone('Asia/Tokyo')
+
+# Read currently configured timezone
+# Taken from
+# https://github.com/regebro/tzlocal/blob/master/tzlocal/darwin.py
+link = os.readlink("/etc/localtime")
+tzname = link[link.rfind("zoneinfo/") + 9:]
+timezone = pytz.timezone(tzname)
+
 today = timezone.localize(datetime.datetime.today()).replace(microsecond=0)
 tomorrow = today.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
 now = datetime.datetime.now(timezone).replace(microsecond=0)
@@ -55,6 +62,7 @@ def main(wf):
 
     for countdown in wf.countdowns():
         created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
+
         # Simple filter for expired countdowns for now
         if created < today:
             continue
