@@ -67,7 +67,7 @@ def main(wf):
         if created < today:
             continue
         delta = created - today
-        icon = wf.datafile(countdown['id'] + '.png')
+        icon = wf.cachefile(countdown['id'] + '.png')
         if os.path.exists(icon) is False:
             if countdown['icon']:
                 request = web.get(countdown['icon'])
