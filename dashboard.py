@@ -41,21 +41,27 @@ class Workflow(workflow.Workflow):
             }
         ).get('results', [])
 
+    def add_item(self, **kwargs):
+        self._items.append(kwargs)
+
+    def send_feedback(self):
+        sys.stdout.write(json.dumps({'items': self._items}))
+        sys.stdout.flush()
+
 
 def main(wf):
-    items = []
     wk = wf.cached_link('wanikani', 'https://www.wanikani.com/api/user/{0}/study-queue'.format(
         wf.settings['wanikani_api']
     ))
 
-    wf.add_item(
-        'Time Remaining',
-        '{} remaining today'.format(tomorrow - now),
-        icon=workflow.ICON_CLOCK,
-    )
+    wf.add_item(**{
+        'title': 'Time Remaining',
+        'subtitle': '{} remaining today'.format(tomorrow - now),
+        'icon': workflow.ICON_CLOCK,
+    })
 
 
-    items.append({
+    wf.add_item(**{
         'title': 'WaniKani',
         'subtitle': 'Reviews: {reviews_available} Lessons: {lessons_available} '.format(**wk['requested_information']),
         'arg': 'https://www.wanikani.com',
@@ -79,7 +85,7 @@ def main(wf):
                 icon = workflow.ICON_CLOCK
 
 
-        items.append({
+        wf.add_item(**{
             'title': countdown['label'],
             'subtitle': str(delta),
             'icon': {'path': icon},
@@ -95,7 +101,7 @@ def main(wf):
     try:
         issues = wf.cached_link('issues', 'https://api.github.com/repos/kfdm/alfred-info-dashboard/issues')
 
-        items.append({
+        wf.add_item(**{
             'title': 'Issues',
             'subtitle': '{} issues'.format(len(issues)),
             'icon': {'path': workflow.ICON_WARNING},
@@ -105,7 +111,7 @@ def main(wf):
     except:
         logger.exception('Error fetching from GitHub')
 
-    print(json.dumps({'items': items}))
+    wf.send_feedback()
 
 if __name__ == '__main__':
     sys.exit(main(Workflow()))
