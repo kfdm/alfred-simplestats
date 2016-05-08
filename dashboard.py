@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import os
 import sys
@@ -21,7 +22,6 @@ tomorrow = today.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.t
 now = datetime.datetime.now(timezone).replace(microsecond=0)
 
 
-
 class Workflow(workflow.Workflow):
     def cached_link(self, key, url, **kwargs):
         def fetch():
@@ -41,7 +41,9 @@ class Workflow(workflow.Workflow):
             }
         ).get('results', [])
 
+
 def main(wf):
+    items = []
     wk = wf.cached_link('wanikani', 'https://www.wanikani.com/api/user/{0}/study-queue'.format(
         wf.settings['wanikani_api']
     ))
@@ -52,13 +54,14 @@ def main(wf):
         icon=workflow.ICON_CLOCK,
     )
 
-    wf.add_item(
-        'WaniKani',
-        'Reviews: {reviews_available} Lessons: {lessons_available} '.format(**wk['requested_information']),
-        arg='https://www.wanikani.com',
-        icon='wk.png',
-        valid=True,
-    )
+
+    items.append({
+        'title': 'WaniKani',
+        'subtitle': 'Reviews: {reviews_available} Lessons: {lessons_available} '.format(**wk['requested_information']),
+        'arg': 'https://www.wanikani.com',
+        'icon': {'path': 'wk.png'},
+        'valid': True,
+    })
 
     for countdown in wf.countdowns():
         created = datetime.datetime.strptime(countdown['created'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC)
@@ -75,25 +78,27 @@ def main(wf):
             else:
                 icon = workflow.ICON_CLOCK
 
-        wf.add_item(
-            countdown['label'],
-            str(delta),
-            icon=icon,
-        )
+
+        items.append({
+            'title': countdown['label'],
+            'subtitle': str(delta),
+            'icon': {'path': icon},
+        })
 
     try:
         issues = wf.cached_link('issues', 'https://api.github.com/repos/kfdm/alfred-info-dashboard/issues')
-        wf.add_item(
-            'Issues',
-            '{} issues'.format(len(issues)),
-            arg='https://github.com/kfdm/alfred-info-dashboard/issues',
-            icon=workflow.ICON_WARNING,
-            valid=True,
-        )
+
+        items.append({
+            'title': 'Issues',
+            'subtitle': '{} issues'.format(len(issues)),
+            'icon': {'path': workflow.ICON_WARNING},
+            'arg': 'https://github.com/kfdm/alfred-info-dashboard/issues',
+            'valid': True
+        })
     except:
         logger.exception('Error fetching from GitHub')
 
-    wf.send_feedback()
+    print(json.dumps({'items': items}))
 
 if __name__ == '__main__':
     sys.exit(main(Workflow()))
