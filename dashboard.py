@@ -83,6 +83,13 @@ def main(wf):
             'title': countdown['label'],
             'subtitle': str(delta),
             'icon': {'path': icon},
+            'mods': {
+                'ctrl': {
+                    'valid': True,
+                    'arg': 'https://tsundere.co/admin/simplestats/countdown/{}/change/'.format(countdown['id']),
+                    'subtitle': 'Edit Countdown',
+                }
+            }
         })
 
     try:
